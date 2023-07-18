@@ -1,0 +1,1387 @@
+{
+	"info": {
+		"_postman_id": "c5bc08ba-299a-4dbc-abdf-ff1bbf8f8f0a",
+		"name": "API Dev Jam Validator",
+		"description": "Validates that the API Dev Jam labs have been completed successfully. To use, do the following:\n1. Choose the API Dev Jam Validator Environment from Environments\n2. Update the userid variable with your NWIE Id. \n3. Modify the current_lab variable to match the lab you are working on.\n4. Click Save\n5. Click Run\n6. Click Run API Dev Jam Validator",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Lab 1 - Creating an API Proxy",
+			"item": [
+				{
+					"name": "LAB 1: Step 3 - Upload and Get the Proxy Working",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var body = pm.response.json();",
+									"var currentLab = pm.variables.get(\"current_lab\");",
+									"",
+									"if (currentLab == 1) {",
+									"  ",
+									"  var testMessage = \"Proxy is returning 500. Proxy setup in Apigee is successful.\";",
+									"",
+									"  // Provide guidance to developer (must be before test)",
+									"  if (pm.response.code == 404) {",
+									"    testMessage = \"Proxy not found. Check these things: basepath correct in Postman, basepath correct in your Proxy, and your Proxy is deployed\"",
+									"  }",
+									"",
+									"  if (pm.response.code == 401) {",
+									"    testMessage = \"Postman not authorized. Make sure you disable the VerifyAPIKey policy in the Proxy PreFlow\"",
+									"  }",
+									"",
+									"  if (pm.response.code == 400 && body.developerMessage.match(/Message ID request header missing/)) {",
+									"    testMessage = \"Missed changing to X-CC-Message-ID. In validateRequest.js, check line 106.\"",
+									"  }",
+									"",
+									"  // don't go to next step if we didn't pass",
+									"  if (pm.response.code != 500) {",
+									"    postman.setNextRequest(null)",
+									"  }",
+									"",
+									"  console.log(testMessage)",
+									"  pm.test(testMessage, function () {",
+									"      pm.response.to.have.status(500);",
+									"      pm.expect(body.developerMessage).to.match(/Service currently unavailable. Please try again./)",
+									"  });",
+									"",
+									"} else if (currentLab == 2) {",
+									"",
+									"  if (pm.response.code == 500) {",
+									"    pm.test(\"List of For Sale textbooks retrieved\", function () {",
+									"        pm.response.to.have.status(500);",
+									"    });  ",
+									"",
+									"  } else if (pm.response.code == 200) {",
+									"    pm.test(\"List of For Sale textbooks retrieved\", function () {",
+									"        pm.response.to.have.status(200);",
+									"        pm.expect(Array.isArray(body.textbooks)).to.equal(true);",
+									"    });  ",
+									"  ",
+									"  // don't go to next step if we didn't pass",
+									"  } else {",
+									"    postman.setNextRequest(null)",
+									"  }",
+									"",
+									"",
+									"",
+									"} else {",
+									"  ",
+									"  if (pm.response.code == 401) {",
+									"    pm.test(\"Not Authorized given missing API Key\", function () {",
+									"        pm.response.to.have.status(401);",
+									"    }); ",
+									"",
+									"  } else if (pm.response.code == 200) {",
+									"    pm.test(\"List of For Sale textbooks retrieved\", function () {",
+									"        pm.response.to.have.status(200);",
+									"        pm.expect(Array.isArray(body.textbooks)).to.equal(true);",
+									"    });  ",
+									"  ",
+									"  // don't go to next step if we didn't pass",
+									"  } else {",
+									"    postman.setNextRequest(null)",
+									"  }",
+									"",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"id": "90b9c2bc-e3af-4a95-8207-fc4bc8836abf"
+							}
+						}
+					],
+					"_postman_id": "8f444cc7-07db-4b87-93f5-f886aa27ac7e",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-CC-Message-ID",
+								"type": "text",
+								"value": "{{$guid}}"
+							}
+						],
+						"url": "https://{{api-host}}/{{basepath}}/for-sale-textbooks"
+					},
+					"response": []
+				},
+				{
+					"name": "LAB 1: Step 4.B - Create a Github repo for the proxy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const body = pm.response.json();\r",
+									"var repoName = pm.variables.get(\"repoName\");\r",
+									"repoName = pm.variables.replaceIn(repoName);\r",
+									"\r",
+									"var testMessage = \"Github Repo was found.\";\r",
+									"var found = false;\r",
+									"\r",
+									"// don't go to next step if we didn't pass\r",
+									"if (pm.response.code != 200) {\r",
+									"  testMessage = \"Github repo for proxy not found. Make sure you have created the repo and named it \" + repoName  \r",
+									"  postman.setNextRequest(null)\r",
+									"}\r",
+									"\r",
+									"console.log(testMessage)\r",
+									"pm.test(testMessage, function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"id": "d35d819a-9d40-45ea-b580-2b3b485e4b11"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"id": "61c5d442-f3a5-4c69-ae80-7432c9663ed7"
+							}
+						}
+					],
+					"_postman_id": "524b53fa-e937-4562-94ad-4c4c6d465285",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/vnd.github.v3+json",
+								"type": "text"
+							}
+						],
+						"url": "https://github.nwie.net/api/v3/repos/{{userid}}/{{repoName}}"
+					},
+					"response": []
+				},
+				{
+					"name": "LAB 1: Step 4.C -  Push local repo to Github",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var testMessage = \"Github Repo is setup correctly.\";\r",
+									"\r",
+									"// Provide guidance to developer (must be before test)\r",
+									"if (pm.response.code == 404) {\r",
+									"  testMessage = \"Repo not setup correctly. Ensure a 'git push' has been successfully complete.\"\r",
+									"}\r",
+									"\r",
+									"  // don't go to next step if we didn't pass\r",
+									"  if (pm.response.code != 200) {\r",
+									"    postman.setNextRequest(null)\r",
+									"  }\r",
+									"\r",
+									"console.log(testMessage)\r",
+									"pm.test(testMessage, function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"id": "e35b7862-8143-4301-b41e-87a932e88d46"
+							}
+						}
+					],
+					"_postman_id": "8796e625-78b4-4561-850f-e18329c34655",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/vnd.github.VERSION.raw",
+								"type": "text"
+							}
+						],
+						"url": "https://github.nwie.net/api/v3/repos/{{userid}}/{{repoName}}/contents/README.md"
+					},
+					"response": []
+				}
+			],
+			"_postman_id": "e1f7269b-2aab-4e3b-95da-9ccbe349f937",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						],
+						"id": "f0d167f3-7f46-40d7-8314-116cd5e57ba2"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						],
+						"id": "d2b67a00-de24-4ff7-98e9-248dd9c1e5c6"
+					}
+				}
+			]
+		},
+		{
+			"name": "Lab 2 - Wiring the Proxy",
+			"item": [
+				{
+					"name": "LAB 2: Step 2 - Configure the Key Value Map",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var current_lab = pm.variables.get(\"current_lab\");\r",
+									"const body = pm.response.json();\r",
+									"var testMessage = \"KVM was found and key/value is correct.\";\r",
+									"\r",
+									"if (current_lab < 2) {\r",
+									"    postman.setNextRequest(null)\r",
+									"    console.log(\"Current Lab needs to be at least 2 to run this step\")\r",
+									"} else {\r",
+									"\r",
+									"  if (pm.response.code == 404) {\r",
+									"    testMessage = \"Your KVM was not found. Please check the name and whether the KVM was created in the Dev environment (and not Test).\"\r",
+									"  } else {\r",
+									"\r",
+									"    if (body.entry[0].name != \"textbook.exchange.target.host\") {\r",
+									"      testMessage = \"The key  of the key-value was not named correctly. Make sure it is 'textbook.exchange.target.host'\"\r",
+									"    }\r",
+									"\r",
+									"    if (body.entry[0].value != \"https://collegecafe-textbook-exchange-service-it.apps.nwie.net\") {\r",
+									"      testMessage = \"The value of the key-value was not set correctly. Make sure it is 'https://collegecafe-textbook-exchange-service-it.apps.nwie.net'\"\r",
+									"    }\r",
+									"  }\r",
+									"  \r",
+									"  if (pm.response.code == 500) {\r",
+									"    testMessage = \"The api-dev-jam-utilities API is not working correctly. Please post in #api-dev-jam for further assistance.\"\r",
+									"  }\r",
+									"\r",
+									"  // don't go to next step if we didn't pass\r",
+									"  if (pm.response.code != 200) {\r",
+									"    postman.setNextRequest(null)\r",
+									"  }\r",
+									"\r",
+									"  console.log(testMessage)\r",
+									"  pm.test(testMessage, function () {\r",
+									"      pm.response.to.have.status(200);\r",
+									"      pm.expect(body.entry[0].name).to.equal(\"textbook.exchange.target.host\");\r",
+									"      pm.expect(body.entry[0].value).to.equal(\"https://collegecafe-textbook-exchange-service-it.apps.nwie.net\");    \r",
+									"  });\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"id": "d77fa31d-1320-4f45-9abe-12830c993a70"
+							}
+						}
+					],
+					"_postman_id": "9cb6fe45-b501-4411-a056-59e14a26a653",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "https://{{api-host}}/api-dev-jam/environments/dev/kvms/{{userid}}-CollegeCafeTargetMap"
+					},
+					"response": []
+				},
+				{
+					"name": "LAB 2: Step 3 - Wiring in the Textbook Exchange Microservice",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var body = pm.response.json();",
+									"var currentLab = pm.variables.get(\"current_lab\");",
+									"",
+									"if (currentLab == 2) {",
+									"  ",
+									"  var testMessage = \"Proxy is returning 500. Proxy setup in Apigee is successful.\";",
+									"",
+									"  // Provide guidance to developer (must be before test)",
+									"  if (pm.response.code == 500) {",
+									"    testMessage = \"Proxy not retrieving textbooks. Check the following in Target Preflow: mapIdentifier is correct and Parameter is correct. Also, make sure Revision 2 (or your latest) is deployed.\"",
+									"  }",
+									"",
+									"  // don't go to next step if we didn't pass",
+									"  if (pm.response.code != 200) {",
+									"    postman.setNextRequest(null)",
+									"  }",
+									"",
+									"  console.log(testMessage)",
+									"  pm.test(testMessage, function () {",
+									"      pm.response.to.have.status(200);",
+									"      pm.expect(Array.isArray(body.textbooks)).to.equal(true);",
+									"   });",
+									"",
+									"} else if (currentLab >= 3) {",
+									"  ",
+									"  if (pm.response.code == 401) {",
+									"    pm.test(\"Not Authorized given missing API Key\", function () {",
+									"        pm.response.to.have.status(401);",
+									"    }); ",
+									"",
+									"  } else if (pm.response.code == 200) {",
+									"    pm.test(\"List of For Sale textbooks retrieved\", function () {",
+									"        pm.response.to.have.status(200);",
+									"        pm.expect(Array.isArray(body.textbooks)).to.equal(true);",
+									"    });  ",
+									"  ",
+									"  // don't go to next step if we didn't pass",
+									"  } else {",
+									"    postman.setNextRequest(null)",
+									"  }",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"id": "e04985f6-34fe-4f3f-bc1f-bd4cb12fa11d"
+							}
+						}
+					],
+					"_postman_id": "a0de9fb9-59e7-414f-ab9e-97a1e6784923",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-CC-Message-ID",
+								"type": "text",
+								"value": "{{$guid}}"
+							}
+						],
+						"url": "https://{{api-host}}/{{basepath}}/for-sale-textbooks"
+					},
+					"response": []
+				},
+				{
+					"name": "LAB 2:  Step 4 - Pushing Your Updates into Github",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const body = pm.response.json();\r",
+									"var testMessage = \"Github branch 'wire-in-target' was found.\";\r",
+									"\r",
+									"if (pm.response.code == 404) {\r",
+									"  testMessage = \"Branch 'wire-in-target' was not found. Ensure a 'git push' has been successfully completed.\"\r",
+									"}\r",
+									"\r",
+									"// don't go to next step if we didn't pass\r",
+									"if (pm.response.code != 200) {\r",
+									"  postman.setNextRequest(null)\r",
+									"}\r",
+									"\r",
+									"console.log(testMessage)\r",
+									"pm.test(testMessage, function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "8e3050c2-f21b-468b-b1b6-da7ddf33cf63"
+							}
+						}
+					],
+					"_postman_id": "3c7be72e-a243-41d5-9fee-6f7c98399e38",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "https://github.nwie.net/api/v3/repos/{{userid}}/{{repoName}}/branches/wire-in-target"
+					},
+					"response": []
+				}
+			],
+			"_postman_id": "e7ba1d59-2ea2-4975-93cf-5ad187253b70",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						],
+						"id": "b7c768d3-ad8c-4a59-a1a7-170d65c08493"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						],
+						"id": "b183361f-0ed7-4b2b-acc6-6c96d69082d5"
+					}
+				}
+			]
+		},
+		{
+			"name": "Lab 3 - Associating Products and Apps",
+			"item": [
+				{
+					"name": "LAB 3: Step 1 - Configure the API Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var current_lab = pm.variables.get(\"current_lab\");\r",
+									"const body = pm.response.json();\r",
+									"var testMessage = \"API Product was found.\";\r",
+									"\r",
+									"if (current_lab < 3) {\r",
+									"    postman.setNextRequest(null)\r",
+									"    console.log(\"Current Lab needs to be at least 3 to run this step\")\r",
+									"} else {\r",
+									"\r",
+									"  if (body.proxies.length == 0) {\r",
+									"    testMessage = \"Your Product was not setup correctly. Please make sure you add your proxy to your product.\"\r",
+									"  }\r",
+									"\r",
+									"  if (pm.response.code == 404) {\r",
+									"    testMessage = \"Your Product was not found. Please check the name and whether the Product was created in the Dev environment (and not Test).\"\r",
+									"  }\r",
+									"\r",
+									"  if (pm.response.code == 500) {\r",
+									"    testMessage = \"The api-dev-jam-utilities API is not working correctly. Please post in #api-dev-jam for further assistance.\"\r",
+									"  }\r",
+									"\r",
+									"  // don't go to next step if we didn't pass\r",
+									"  if (pm.response.code != 200) {\r",
+									"    postman.setNextRequest(null)\r",
+									"  }\r",
+									"\r",
+									"  console.log(testMessage)\r",
+									"  pm.test(testMessage, function () {\r",
+									"      pm.response.to.have.status(200);\r",
+									"      pm.expect(body.proxies).to.not.be.empty;\r",
+									"  });\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"id": "e283bc9f-63b2-4bfd-a9c2-cce169c28f1b"
+							}
+						}
+					],
+					"_postman_id": "8af12760-e151-4a44-af8c-169ce57e0108",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "https://{{api-host}}/api-dev-jam/products/{{userid}}-Textbook-Exchange"
+					},
+					"response": []
+				},
+				{
+					"name": "LAB 3: Step 2 - Turn on API Key Verification",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var currentLab = pm.variables.get(\"current_lab\");",
+									"var testMessage = \"Proxy is now authorizing, but no API Key\";",
+									"",
+									"if (currentLab == 3) {",
+									"",
+									"  if (pm.response.code == 200) {",
+									"    testMessage = \"Proxy not authorizing. Make sure you enable the VerifyAPIKey policy in the proxy. \";",
+									"    postman.setNextRequest(null);",
+									"",
+									"    pm.test(testMessage, function () {",
+									"        pm.response.to.have.status(401);",
+									"    });",
+									"    ",
+									"  } else {",
+									"",
+									"    // don't go to next step if we didn't pass",
+									"    if (pm.response.code != 401) {",
+									"      postman.setNextRequest(null)",
+									"    }",
+									"",
+									"    pm.test(testMessage, function () {",
+									"        pm.response.to.have.status(401);",
+									"    });  ",
+									"  }",
+									"} else {",
+									"",
+									"    // don't go to next step if we didn't pass",
+									"    if (pm.response.code != 401) {",
+									"      postman.setNextRequest(null)",
+									"    }",
+									"",
+									"    pm.test(testMessage, function () {",
+									"        pm.response.to.have.status(401);",
+									"    });  ",
+									"}",
+									""
+								],
+								"type": "text/javascript",
+								"id": "87f825ab-442d-4bc7-8eb5-d68499703588"
+							}
+						}
+					],
+					"_postman_id": "cdcffeaa-181f-4515-a63d-01e36c6f0788",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-CC-Message-ID",
+								"type": "text",
+								"value": "{{$guid}}"
+							}
+						],
+						"url": "https://{{api-host}}/{{basepath}}/for-sale-textbooks"
+					},
+					"response": []
+				},
+				{
+					"name": "LAB 3: Step 3 - Setting up your Developer Account",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const body = pm.response.json();\r",
+									"var testMessage = \"API Product was found.\";\r",
+									"\r",
+									"if (pm.response.code == 404) {\r",
+									"  testMessage = \"Your Developer record was not found. Please check the name and whether the Developer was created in the Dev environment (and not Test).\"\r",
+									"}\r",
+									"\r",
+									"if (pm.response.code == 500) {\r",
+									"  testMessage = \"The api-dev-jam-utilities API is not working correctly. Please post in #api-dev-jam for further assistance.\"\r",
+									"}\r",
+									"\r",
+									"// don't go to next step if we didn't pass\r",
+									"if (pm.response.code != 200) {\r",
+									"  postman.setNextRequest(null)\r",
+									"}\r",
+									"\r",
+									"console.log(testMessage)\r",
+									"pm.test(testMessage, function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "71e63e09-9abd-40b7-947a-ef38855da7f9"
+							}
+						}
+					],
+					"_postman_id": "288bf715-c0af-4d1c-a0fb-48916f9b2e5b",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "https://{{api-host}}/api-dev-jam/developers/{{userid}}"
+					},
+					"response": []
+				},
+				{
+					"name": "LAB 3: Step 4 - Setting up your App",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const body = pm.response.json();\r",
+									"var testMessage = \"Test App was found.\";\r",
+									"\r",
+									"if (pm.response.code == 404) {\r",
+									"  testMessage = \"Your App was not found. Please check the name and whether the App was created in the Dev environment.\"\r",
+									"}\r",
+									"\r",
+									"if (pm.response.code == 500) {\r",
+									"  testMessage = \"The api-dev-jam-utilities API is not working correctly. Please post in #api-dev-jam for further assistance.\"\r",
+									"}\r",
+									"\r",
+									"// don't go to next step if we didn't pass\r",
+									"if (pm.response.code != 200) {\r",
+									"  postman.setNextRequest(null)\r",
+									"}\r",
+									"\r",
+									"console.log(testMessage)\r",
+									"pm.test(testMessage, function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "6b5ef9b9-96e7-46c4-b975-ada6d9a5e59b"
+							}
+						}
+					],
+					"_postman_id": "b7def7b7-63ab-43c5-8403-762aefa8a73e",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "https://{{api-host}}/api-dev-jam/developers/{{userid}}/apps/{{userid}}-Test-App"
+					},
+					"response": []
+				},
+				{
+					"name": "LAB 3: Step 5 - Verifying the Proxy works again",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var body = pm.response.json();",
+									"var currentLab = pm.variables.get(\"current_lab\");",
+									"var testMessage = \"\";",
+									"",
+									"if (currentLab == 3) {",
+									"  ",
+									"  testMessage = \"Proxy is returning textbooks. Proxy authorization successful.\";",
+									"",
+									"  // Provide guidance to developer (must be before test)",
+									"  // Provide guidance to developer (must be before test)",
+									"  if (pm.response.code == 401) {",
+									"",
+									"    if (pm.variables.has(\"client_id\")) {",
+									"      testMessage = \"Proxy not retrieving textbooks. Check to make sure you are passing the API Key in a client_id header and it matches your assigned Client Key from Apigee.\"",
+									"    } else {",
+									"      testMessage = \"Proxy not retrieving textbooks. Your client_id is not setup correctly in Postman.\"",
+									"    }",
+									"",
+									"  }",
+									"",
+									"  if (pm.response.code == 500) {",
+									"    testMessage = \"Proxy not retrieving textbooks. Check the following in Target Preflow: mapIdentifier is correct and Parameter is correct. Also, make sure Revision 2 (or your latest) is deployed.\"",
+									"  }",
+									"",
+									"  // don't go to next step if we didn't pass",
+									"  if (pm.response.code != 200) {",
+									"    postman.setNextRequest(null)",
+									"  }",
+									"",
+									"  console.log(testMessage)",
+									"  pm.test(testMessage, function () {",
+									"      pm.response.to.have.status(200);",
+									"      pm.expect(Array.isArray(body.textbooks)).to.equal(true);",
+									"   });",
+									"",
+									"} else if (currentLab == 4) {",
+									"  testMessage = \"Proxy is returning textbooks. Proxy authorization successful.\"",
+									"",
+									"  // don't go to next step if we didn't pass",
+									"  if (pm.response.code != 200) {",
+									"    postman.setNextRequest(null)",
+									"  }",
+									"",
+									"  console.log(testMessage)",
+									"  pm.test(testMessage, function () {",
+									"      pm.response.to.have.status(200);",
+									"      pm.expect(Array.isArray(body.textbooks)).to.equal(true);",
+									"   });",
+									"",
+									"} else {",
+									"  testMessage = \"Proxy is blocking due to missing token\"",
+									"",
+									"  // don't go to next step if we didn't pass",
+									"  if (pm.response.code != 401) {",
+									"      postman.setNextRequest(null)",
+									"  } else {",
+									"    if (body.developerMessage) {",
+									"      if (! body.developerMessage.includes(\"Invalid access token\")) {",
+									"        postman.setNextRequest(null)",
+									"      }",
+									"    }",
+									"  } ",
+									"",
+									"  pm.test(testMessage, function () {",
+									"    pm.response.to.have.status(401);",
+									"    pm.expect(body.developerMessage).to.includes(\"Invalid access token\")",
+									"  });  ",
+									"",
+									"",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"id": "2da87c55-3839-42e5-9837-0426349f994e"
+							}
+						}
+					],
+					"_postman_id": "ba98f2c3-0941-4c23-9447-4e4659e4e567",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-CC-Message-ID",
+								"type": "text",
+								"value": "{{$guid}}"
+							},
+							{
+								"key": "client_id",
+								"type": "text",
+								"value": "{{client_id}}"
+							}
+						],
+						"url": "https://{{api-host}}/{{basepath}}/for-sale-textbooks"
+					},
+					"response": []
+				},
+				{
+					"name": "LAB 3:  Step 6 - Update Github with the changes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const body = pm.response.json();\r",
+									"var testMessage = \"Github branch 'wire-in-target' was found and updated for API Key.\";\r",
+									"\r",
+									"var currentLab = pm.collectionVariables.get(\"current_lab\");\r",
+									"var found = false;\r",
+									"if (body.commit.commit.message !== \"Enabled API Key\") {\r",
+									"  testMessage = \"Branch 'wire-in-target' is found, but has not been updated for API Key updates\"\r",
+									"  found = true;\r",
+									"}   \r",
+									"\r",
+									"if (pm.response.code == 404) {\r",
+									"  testMessage = \"Branch 'wire-in-target' was not found. Ensure a 'git push' has been successfully completed.\"\r",
+									"}\r",
+									"\r",
+									"// don't go to next step if we didn't pass\r",
+									"if (pm.response.code != 200 || found) {\r",
+									"  postman.setNextRequest(null)\r",
+									"}\r",
+									"\r",
+									"console.log(testMessage)\r",
+									"pm.test(testMessage, function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(body.commit.commit.message).to.eql(\"Enabled API Key\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"id": "41e41153-51a5-47d8-8ef3-2d12411a72cf"
+							}
+						}
+					],
+					"_postman_id": "394dcd8d-b868-4bb7-8683-d0f41315e54c",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "https://github.nwie.net/api/v3/repos/{{userid}}/{{repoName}}/branches/wire-in-target"
+					},
+					"response": []
+				}
+			],
+			"_postman_id": "a4206a01-44b4-409c-871b-5c0d7757657c"
+		},
+		{
+			"name": "Lab 4 - Deploying an API to the Test Environment",
+			"item": [
+				{
+					"name": "LAB 4: Step 1 - Promoting the KVM to Test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var current_lab = pm.variables.get(\"current_lab\");\r",
+									"const body = pm.response.json();\r",
+									"var testMessage = \"KVM was found and key/value is correct.\";\r",
+									"\r",
+									"if (current_lab < 4) {\r",
+									"    postman.setNextRequest(null)\r",
+									"    console.log(\"Current Lab needs to be at least 4 to run this step\")\r",
+									"} else {\r",
+									"\r",
+									"  if (pm.response.code == 404) {\r",
+									"    testMessage = \"Your KVM was not found. Please check the name and whether the KVM was created in the Dev environment (and not Test).\"\r",
+									"  } else {\r",
+									"\r",
+									"    if (body.entry[0].name != \"textbook.exchange.target.host\") {\r",
+									"      testMessage = \"The key  of the key-value was not named correctly. Make sure it is 'textbook.exchange.target.host'\"\r",
+									"      postman.setNextRequest(null)\r",
+									"    }\r",
+									"\r",
+									"    if (body.entry[0].value != \"https://collegecafe-textbook-exchange-service-it.apps.nwie.net\") {\r",
+									"      testMessage = \"The value of the key-value was not set correctly. Make sure it is 'https://collegecafe-textbook-exchange-service-it.apps.nwie.net'\"\r",
+									"      postman.setNextRequest(null)\r",
+									"    }\r",
+									"  }\r",
+									"  \r",
+									"  if (pm.response.code == 500) {\r",
+									"    testMessage = \"The api-dev-jam-utilities API is not working correctly. Please post in #api-dev-jam for further assistance.\"\r",
+									"  }\r",
+									"\r",
+									"  // don't go to next step if we didn't pass\r",
+									"  if (pm.response.code != 200) {\r",
+									"    postman.setNextRequest(null)\r",
+									"  }\r",
+									"\r",
+									"  console.log(testMessage)\r",
+									"  pm.test(testMessage, function () {\r",
+									"      pm.response.to.have.status(200);\r",
+									"      pm.expect(body.entry[0].name).to.equal(\"textbook.exchange.target.host\");\r",
+									"      pm.expect(body.entry[0].value).to.equal(\"https://collegecafe-textbook-exchange-service-it.apps.nwie.net\");    \r",
+									"  });\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"id": "bfbfc2e5-a29b-492e-8d96-bd03b80a1ec0"
+							}
+						}
+					],
+					"_postman_id": "ab2dfb2d-5f27-4a75-befb-37b2be1cf00d",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "https://{{api-host}}/api-dev-jam/environments/test/kvms/{{userid}}-CollegeCafeTargetMap"
+					},
+					"response": []
+				},
+				{
+					"name": "LAB 4: Step 2 - Promoting the Proxy to Test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var body = pm.response.json();",
+									"var currentLab = pm.variables.get(\"current_lab\");",
+									"var testMessage = \"\";",
+									"",
+									"if (currentLab == 4) {",
+									"  ",
+									"  testMessage = \"Proxy is returning textbooks. Proxy authorization successful.\";",
+									"",
+									"  // Provide guidance to developer (must be before test)",
+									"  // Provide guidance to developer (must be before test)",
+									"  if (pm.response.code == 404) {",
+									"      testMessage = \"Proxy was not found. Make sure your deploy command worked correctly.\"",
+									"  }",
+									"  ",
+									"  if (pm.response.code == 401) {",
+									"",
+									"    if (pm.variables.has(\"client_id\")) {",
+									"      testMessage = \"Proxy not retrieving textbooks. Check to make sure you are passing the API Key in a client_id header and it matches your assigned Client Key from Apigee.\"",
+									"    } else {",
+									"      testMessage = \"Proxy not retrieving textbooks. Your client_id is not setup correctly in Postman.\"",
+									"    }",
+									"",
+									"  }",
+									"",
+									"  if (pm.response.code == 500) {",
+									"    testMessage = \"Proxy not retrieving textbooks. Check the following in Target Preflow: mapIdentifier is correct and Parameter is correct. Also, make sure Revision 2 (or your latest) is deployed.\"",
+									"  }",
+									"",
+									"  // don't go to next step if we didn't pass",
+									"  if (pm.response.code != 200) {",
+									"    postman.setNextRequest(null)",
+									"  }",
+									"",
+									"  console.log(testMessage)",
+									"  pm.test(testMessage, function () {",
+									"      pm.response.to.have.status(200);",
+									"      pm.expect(Array.isArray(body.textbooks)).to.equal(true);",
+									"   });",
+									"",
+									"} else {",
+									"  testMessage = \"Proxy is blocking due to missing token\"",
+									"",
+									"  // don't go to next step if we didn't pass",
+									"  if (pm.response.code != 401) {",
+									"      postman.setNextRequest(null)",
+									"  } else {",
+									"    if (body.developerMessage) {",
+									"      if (! body.developerMessage.includes(\"Invalid access token\")) {",
+									"        postman.setNextRequest(null)",
+									"      }",
+									"    }",
+									"  } ",
+									"",
+									"  pm.test(testMessage, function () {",
+									"    pm.response.to.have.status(401);",
+									"    pm.expect(body.developerMessage).to.includes(\"Invalid access token\")",
+									"  });  ",
+									"",
+									"",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"id": "7d8b5900-b4b8-4615-a50c-20a7338715ea"
+							}
+						}
+					],
+					"_postman_id": "b95bbc83-130e-4d2c-9d1f-246535681cf3",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-CC-Message-ID",
+								"type": "text",
+								"value": "{{$guid}}"
+							},
+							{
+								"key": "client_id",
+								"type": "text",
+								"value": "{{client_id}}"
+							}
+						],
+						"url": "https://{{api-test-host}}/{{basepath}}/for-sale-textbooks"
+					},
+					"response": []
+				}
+			],
+			"_postman_id": "cc6c1cbf-730e-4958-9db5-34e9ace9d00e"
+		},
+		{
+			"name": "Lab 5 - Securing an API with EUA",
+			"item": [
+				{
+					"name": "LAB 5: Step 1 - Add the OAuth Policy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const body = pm.response.json();",
+									"var current_lab = pm.variables.get(\"current_lab\");",
+									"",
+									"if (current_lab < 5) {",
+									"    postman.setNextRequest(null)",
+									"    console.log(\"Current Lab needs to be at least 5 to run this step\")",
+									"} else {  ",
+									"",
+									"  var testMessage = \"Proxy is now authorizing by user, but no OAuth access token provided\";",
+									"",
+									"  var accessToken = pm.globals.get(\"access_token\");",
+									"  if (accessToken == undefined) {",
+									"",
+									"    // Provide guidance to developer (must be before test)",
+									"    if (pm.response.code == 200) {",
+									"      testMessage = \"Proxy is NOT authorizing by user. Ensure the OAuth v2.0 policy has been added.\"",
+									"    }",
+									"",
+									"    // Provide guidance to developer (must be before test)",
+									"    if (pm.response.code == 401 && ! body.developerMessage.includes(\"Invalid access token\")) {",
+									"      testMessage = \"Proxy is NOT authorizing by user. Ensure the OAuth v2.0 policy has been added and in proper location in the PreFlow.\"",
+									"    }",
+									"",
+									"    // don't go to next step if we didn't pass",
+									"    if (pm.response.code != 401) {",
+									"        postman.setNextRequest(null)",
+									"    } else {",
+									"      if (! body.developerMessage.includes(\"Invalid access token\")) {",
+									"        postman.setNextRequest(null)",
+									"      }",
+									"    } ",
+									"",
+									"    console.log(testMessage);",
+									"    pm.test(testMessage, function () {",
+									"      pm.response.to.have.status(401);",
+									"      pm.expect(body.developerMessage).to.include(\"Invalid access token\");",
+									"",
+									"    });  ",
+									"      ",
+									"  } else {",
+									"",
+									"    // don't go to next step if we didn't pass",
+									"    if (pm.response.code != 401) {",
+									"        postman.setNextRequest(null)",
+									"    } else {",
+									"      if (! body.developerMessage.includes(\"Invalid access token\")) {",
+									"        postman.setNextRequest(null)",
+									"      }",
+									"    } ",
+									"",
+									"    pm.test(testMessage, function () {",
+									"        pm.response.to.have.status(401);",
+									"        pm.expect(body.developerMessage).to.include(\"Invalid access token\");        ",
+									"    });  ",
+									"  }",
+									"}",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"id": "6a4b4bf4-3238-430c-a489-39b9bd28fcff"
+							}
+						}
+					],
+					"_postman_id": "50a51c69-920a-41f3-8df3-960388d58f5d",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-CC-Message-ID",
+								"type": "text",
+								"value": "{{$guid}}"
+							},
+							{
+								"key": "client_id",
+								"type": "text",
+								"value": "{{client_id}}"
+							}
+						],
+						"url": "https://{{api-host}}/{{basepath}}/for-sale-textbooks"
+					},
+					"response": []
+				},
+				{
+					"name": "LAB 5: Step 2 - Enabling the Consumer App to Authenticate",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const body = pm.response.json();\r",
+									"var testMessage = \"EUA Password Grant API Product assigned.\";\r",
+									"\r",
+									"if (pm.response.code == 404) {\r",
+									"  testMessage = \"Your App was not found. Please check the name and whether the App was created in the Dev environment.\"\r",
+									"}\r",
+									"\r",
+									"if (pm.response.code == 500) {\r",
+									"  testMessage = \"The api-dev-jam-utilities API is not working correctly. Please post in #api-dev-jam for further assistance.\"\r",
+									"}\r",
+									"\r",
+									"const apiProducts = body.credentials[0].apiProducts;\r",
+									"const productFound = apiProducts.find(item => {return item.apiproduct === 'ETS_Enterprise-Security-Password-Grant' })\r",
+									"\r",
+									"// don't go to next step if we didn't pass\r",
+									"if (pm.response.code != 200) {\r",
+									"  postman.setNextRequest(null)\r",
+									"} else {\r",
+									"  if (!productFound) {\r",
+									"    testMessage = \"EUA product not found. Make sure you saved your app after the changes.\"\r",
+									"    postman.setNextRequest(null)\r",
+									"  }\r",
+									"} \r",
+									"\r",
+									"console.log(testMessage)\r",
+									"pm.test(testMessage, function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(productFound.apiproduct).to.equal('ETS_Enterprise-Security-Password-Grant');\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "b971a288-a604-43e8-b195-052adb90ccd7"
+							}
+						}
+					],
+					"_postman_id": "7140dc0c-1673-4b0c-b6a9-b4ac2eac1361",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "https://{{api-host}}/api-dev-jam/developers/{{userid}}/apps/{{userid}}-Test-App"
+					},
+					"response": []
+				},
+				{
+					"name": "LAB 5: Step 3 - Authenticating the User",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let keys = pm.variables.get(\"client_id\") + \":\" + pm.variables.get(\"client_secret\");\r",
+									"let encodedKeys = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(keys));\r",
+									"\r",
+									"pm.globals.set(\"client_id+secret\", encodedKeys);\r",
+									""
+								],
+								"type": "text/javascript",
+								"id": "81e12eda-8217-4744-aade-ca93de0e4e6c"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const body = pm.response.json();",
+									"var testMessage = \"EUA Access Token was obtained.\";",
+									"",
+									"if (pm.response.code == 500 && body.code.includes(\"oauth.v2.InvalidClientIdentifier\")) {",
+									"  testMessage = \"EUA Access Token was not obtained. Make sure `eua_auth` variable is populated with your Test App's auth string. \"",
+									"}",
+									"",
+									"if (pm.response.code == 500 && body.code.includes(\"access_denied\")) {",
+									"  testMessage = \"EUA Access Token was not obtained. Make sure your password is populated in the body (or env variable) \"",
+									"}",
+									"",
+									"if (pm.variables.get(\"eua_auth\") === \"\" ) {",
+									"  testMessage = \"EUA Access Token was not obtained. The 'eua_auth' variable is not set. Update the 'eua_auth' environment variable with your App's auth string. \"",
+									"}",
+									"",
+									"// don't go to next step if we didn't pass",
+									"if (pm.response.code != 200) {",
+									"  postman.setNextRequest(null)",
+									"}",
+									"",
+									"console.log(testMessage)",
+									"pm.test(testMessage, function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Store the tokens for later use",
+									"pm.globals.set(\"access_token\", body.access_token );",
+									"pm.globals.set(\"id_token\", body.id_token );",
+									"pm.globals.set(\"refresh_token\", body.refresh_token );",
+									""
+								],
+								"type": "text/javascript",
+								"id": "293ef789-8168-4bf1-8b8a-7fbecf3abc77"
+							}
+						}
+					],
+					"_postman_id": "c02c09c4-b1b4-4f53-b9fd-b832c8e5a5c0",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic {{eua_auth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "{{userid}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{pw}}",
+									"type": "text"
+								},
+								{
+									"key": "scope",
+									"value": "openid",
+									"type": "text"
+								},
+								{
+									"key": "realm",
+									"value": "employee",
+									"type": "text"
+								},
+								{
+									"key": "auth_method",
+									"value": "ping-sts",
+									"type": "text"
+								}
+							],
+							"options": {}
+						},
+						"url": "https://{{api-host}}/security-processing/enterprise-user-auth/v2/token"
+					},
+					"response": []
+				},
+				{
+					"name": "LAB 5: Step 4 - Calling the Resource API with the Access Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var currentLab = pm.variables.get(\"current_lab\");",
+									"const body = pm.response.json();",
+									"",
+									" var testMessage = \"Proxy is now authorizing by user\"",
+									"",
+									"// Provide guidance to developer (must be before test)",
+									"if (pm.response.code == 401 && body.developerMessage.includes(\"Invalid access token\")) {",
+									"  testMessage = \"Proxy is NOT authorizing by user. Ensure the OAuth v2.0 policy is in the right location in the Proxy PreFlow (between VerifyAPIKey and JavaScriptValidateRequest. Make sure Bearer is included in Authorization header.\"",
+									"}",
+									"",
+									"// don't go to next step if we didn't pass",
+									"if (pm.response.code != 200) {",
+									"    postman.setNextRequest(null)",
+									"} ",
+									"",
+									"console.log(testMessage);",
+									"pm.test(testMessage, function () {",
+									"  pm.response.to.have.status(200);",
+									"});  ",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"id": "4a4496b9-28b4-475b-a6f3-b18cbe3cff16"
+							}
+						}
+					],
+					"_postman_id": "da79f2b6-8f6a-474c-b60f-4775fd9b491e",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-CC-Message-ID",
+								"type": "text",
+								"value": "{{$guid}}"
+							},
+							{
+								"key": "client_id",
+								"type": "text",
+								"value": "{{client_id}}"
+							}
+						],
+						"url": "https://{{api-host}}/{{basepath}}/for-sale-textbooks"
+					},
+					"response": []
+				}
+			],
+			"_postman_id": "30c1f03e-a6c7-4deb-baee-2929f0bcc482"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "2218059b-b79a-4284-bc34-5c54b79484db",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "928179ea-92a8-47ea-abc2-20ceda77cdd3",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "cd6fa1b7-bd89-4d60-96c7-bae6977fe67b",
+			"key": "current_lab",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"id": "6b74df86-fad8-4eb9-98ba-ecf50d545927",
+			"key": "userid",
+			"value": "<your nwie id>",
+			"type": "string"
+		},
+		{
+			"id": "7af90bb5-ce1d-4de1-a191-e57af185d1d2",
+			"key": "api-host",
+			"value": "apisandbox-dev.nwie.net",
+			"type": "string"
+		},
+		{
+			"id": "87d7fee7-e27d-4aac-8b6a-7c549e4d7023",
+			"key": "basepath",
+			"value": "sales-management/{{userid}}-textbook-exchange/v1",
+			"type": "string"
+		},
+		{
+			"id": "9e106fc0-aa02-424d-ae7e-32eb6bf7c5bf",
+			"key": "github-org",
+			"value": "{{userid}}",
+			"type": "string"
+		},
+		{
+			"id": "98d8e702-83ca-409c-b26c-d79392cd66aa",
+			"key": "repoName",
+			"value": "{{userid}}-collegecafe-textbook-exchange-1",
+			"type": "string"
+		},
+		{
+			"id": "cc1e3a7f-7c75-424a-803d-9abb916351a8",
+			"key": "nwieId",
+			"value": "{{userid}}",
+			"type": "string"
+		},
+		{
+			"id": "f5370bb6-f58b-4783-96ed-37f13d6d6624",
+			"key": "api-test-host",
+			"value": "apisandbox-test.nwie.net",
+			"type": "string"
+		}
+	]
+}
